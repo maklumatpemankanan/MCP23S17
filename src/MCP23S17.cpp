@@ -23,48 +23,60 @@ MCP23S17::MCP23S17(uint8_t csPin, uint8_t address, uint32_t spiFrequency) {
 }
 
 /*
- * Initialisierung - Muss in setup() aufgerufen werden
+ * Initialisierung mit Standard-SPI-Pins
  */
 bool MCP23S17::begin() {
     // CS-Pin als Ausgang konfigurieren
     ::pinMode(_csPin, OUTPUT);
     ::digitalWrite(_csPin, HIGH);  // CS inaktiv (HIGH)
     
-    // SPI initialisieren
+    // SPI mit Standard-Pins initialisieren
     _spi->begin();
     
     // Warte kurz nach SPI-Init
     delay(1);
     
-    // IOCON Register konfigurieren:
-    // - HAEN aktivieren (Hardware-Adressierung)
-    // - SEQOP deaktivieren (sequenzieller Zugriff aktiviert)
-    // - Alle anderen Bits auf 0
-    writeRegister(MCP23S17_IOCON, IOCON_HAEN);
+    // IOCON Register konfigurieren und Chip initialisieren
+    return initializeChip();
+}
+
+/*
+ * Initialisierung mit benutzerdefinierten SPI-Pins
+ */
+bool MCP23S17::begin(int8_t sck, int8_t miso, int8_t mosi) {
+    // CS-Pin als Ausgang konfigurieren
+    ::pinMode(_csPin, OUTPUT);
+    ::digitalWrite(_csPin, HIGH);  // CS inaktiv (HIGH)
     
-    // Alle Pins als Eingang konfigurieren (Standardzustand)
-    writeRegister(MCP23S17_IODIRA, 0xFF);
-    writeRegister(MCP23S17_IODIRB, 0xFF);
+    // SPI mit benutzerdefinierten Pins initialisieren
+    _spi->begin(sck, miso, mosi, _csPin);
     
-    // Alle Pull-ups deaktivieren
-    writeRegister(MCP23S17_GPPUA, 0x00);
-    writeRegister(MCP23S17_GPPUB, 0x00);
+    // Warte kurz nach SPI-Init
+    delay(1);
     
-    // Alle Ausgänge auf LOW
-    writeRegister(MCP23S17_OLATA, 0x00);
-    writeRegister(MCP23S17_OLATB, 0x00);
+    // IOCON Register konfigurieren und Chip initialisieren
+    return initializeChip();
+}
+
+/*
+ * Initialisierung mit bestehendem SPI-Bus
+ */
+bool MCP23S17::begin(SPIClass* spi) {
+    // Übergebenen SPI-Bus verwenden
+    _spi = spi;
     
-    // Polarität normal (nicht invertiert)
-    writeRegister(MCP23S17_IPOLA, 0x00);
-    writeRegister(MCP23S17_IPOLB, 0x00);
+    // CS-Pin als Ausgang konfigurieren
+    ::pinMode(_csPin, OUTPUT);
+    ::digitalWrite(_csPin, HIGH);  // CS inaktiv (HIGH)
     
-    // Alle Interrupts deaktivieren
-    writeRegister(MCP23S17_GPINTENA, 0x00);
-    writeRegister(MCP23S17_GPINTENB, 0x00);
+    // SPI wird NICHT initialisiert - muss bereits initialisiert sein!
+    // Der Benutzer hat die volle Kontrolle über den SPI-Bus
     
-    // Kommunikation testen: IOCON lesen
-    uint8_t testValue = readRegister(MCP23S17_IOCON);
-    return (testValue & IOCON_HAEN) != 0;  // Prüfe ob HAEN gesetzt ist
+    // Warte kurz
+    delay(1);
+    
+    // IOCON Register konfigurieren und Chip initialisieren
+    return initializeChip();
 }
 
 // ========== GPIO Grundfunktionen ==========
@@ -491,6 +503,41 @@ void MCP23S17::reset() {
 }
 
 // ========== Private Hilfsfunktionen ==========
+
+/*
+ * Chip initialisieren (wird von beiden begin()-Varianten aufgerufen)
+ */
+bool MCP23S17::initializeChip() {
+    // IOCON Register konfigurieren:
+    // - HAEN aktivieren (Hardware-Adressierung)
+    // - SEQOP deaktivieren (sequenzieller Zugriff aktiviert)
+    // - Alle anderen Bits auf 0
+    writeRegister(MCP23S17_IOCON, IOCON_HAEN);
+    
+    // Alle Pins als Eingang konfigurieren (Standardzustand)
+    writeRegister(MCP23S17_IODIRA, 0xFF);
+    writeRegister(MCP23S17_IODIRB, 0xFF);
+    
+    // Alle Pull-ups deaktivieren
+    writeRegister(MCP23S17_GPPUA, 0x00);
+    writeRegister(MCP23S17_GPPUB, 0x00);
+    
+    // Alle Ausgänge auf LOW
+    writeRegister(MCP23S17_OLATA, 0x00);
+    writeRegister(MCP23S17_OLATB, 0x00);
+    
+    // Polarität normal (nicht invertiert)
+    writeRegister(MCP23S17_IPOLA, 0x00);
+    writeRegister(MCP23S17_IPOLB, 0x00);
+    
+    // Alle Interrupts deaktivieren
+    writeRegister(MCP23S17_GPINTENA, 0x00);
+    writeRegister(MCP23S17_GPINTENB, 0x00);
+    
+    // Kommunikation testen: IOCON lesen
+    uint8_t testValue = readRegister(MCP23S17_IOCON);
+    return (testValue & IOCON_HAEN) != 0;  // Prüfe ob HAEN gesetzt ist
+}
 
 /*
  * SPI-Transaktion starten

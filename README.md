@@ -1,82 +1,113 @@
 # MCP23S17 Arduino Library
 
-Complete Arduino library for the **MCP23S17** 16-bit SPI I/O Expander from Microchip.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.0-green.svg)
+![Arduino](https://img.shields.io/badge/Arduino-Compatible-brightgreen.svg)
+![ESP32](https://img.shields.io/badge/ESP32-Optimized-orange.svg)
 
-## Features
+A comprehensive Arduino library for the **MCP23S17** 16-bit SPI I/O Expander from Microchip.
 
-- ✅ **GPIO Basic Functions**: pinMode, digitalWrite, digitalRead
-- ✅ **Interrupt Support**: Complete interrupt configuration and handling
-- ✅ **Pull-up Resistors**: Configurable for each pin
-- ✅ **Port-wise Operations**: Control 8 pins simultaneously
-- ✅ **16-bit GPIO**: Read/write all 16 pins at once
-- ✅ **Multiple Chips**: Up to 8 MCP23S17 per CS pin
-- ✅ **ESP32 Optimized**: Tested on ESP32
-- ✅ **Clean Code**: Extensively commented
+## ✨ Features
 
-## Hardware Requirements
+- 🎯 **Arduino-style API** - pinMode, digitalWrite, digitalRead
+- ⚡ **Interrupt Support** - Full interrupt configuration and handling
+- 🔌 **Pull-up Resistors** - Configurable for each pin
+- 📦 **Port Operations** - Control 8 pins simultaneously
+- 🔢 **16-bit GPIO** - Read/write all 16 pins at once
+- 🔗 **Multiple Chips** - Up to 8 MCP23S17 per CS pin
+- 🎛️ **Flexible SPI** - Three initialization methods
+- 🚀 **ESP32 Optimized** - Tested and optimized for ESP32
+- 📝 **Well Documented** - Extensive comments and examples
 
-- ESP32 (or other Arduino-compatible boards)
-- MCP23S17 Port Expander
-- SPI connection
+## 📋 Table of Contents
 
-## Installation
+- [Hardware Requirements](#hardware-requirements)
+- [Installation](#installation)
+- [Wiring](#wiring)
+- [Quick Start](#quick-start)
+- [SPI Initialization Methods](#spi-initialization-methods)
+- [API Reference](#api-reference)
+- [Examples](#examples)
+- [Advanced Usage](#advanced-usage)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-### Method 1: Arduino IDE
+## 🔧 Hardware Requirements
 
-1. Download the library as ZIP
-2. Arduino IDE → Sketch → Include Library → Add .ZIP Library
-3. Select ZIP file
-4. Done!
+- Arduino-compatible board (ESP32 recommended)
+- MCP23S17 SPI I/O Expander
+- SPI connection (4 wires minimum)
 
-### Method 2: Manual
+### Tested Platforms
 
-1. Copy library to Arduino library folder:
-   - Windows: `Documents\Arduino\libraries\MCP23S17`
-   - Linux: `~/Arduino/libraries/MCP23S17`
-   - Mac: `~/Documents/Arduino/libraries/MCP23S17`
-2. Restart Arduino IDE
+- ✅ ESP32
+- ✅ Arduino Uno
+- ✅ Arduino Mega
+- ✅ Arduino Nano
 
-## Wiring
+## 📥 Installation
+
+### Method 1: Arduino Library Manager (Recommended)
+
+1. Open Arduino IDE
+2. Go to `Sketch` → `Include Library` → `Manage Libraries...`
+3. Search for "MCP23S17"
+4. Click "Install"
+
+### Method 2: Manual Installation
+
+1. Download the latest release as ZIP
+2. In Arduino IDE: `Sketch` → `Include Library` → `Add .ZIP Library...`
+3. Select the downloaded ZIP file
+4. Restart Arduino IDE
+
+### Method 3: Git Clone
+
+```bash
+cd ~/Arduino/libraries
+git clone https://github.com/yourusername/MCP23S17.git
+```
+
+## 🔌 Wiring
 
 ### Standard ESP32 to MCP23S17
 
-| ESP32 Pin | MCP23S17 Pin | Description |
-|-----------|--------------|-------------|
-| GPIO 18   | SCK (Pin 12) | SPI Clock   |
-| GPIO 23   | SI (Pin 13)  | SPI MOSI    |
-| GPIO 19   | SO (Pin 14)  | SPI MISO    |
-| GPIO 5    | CS (Pin 11)  | Chip Select |
-| 3.3V      | VDD (Pin 9)  | Power       |
-| 3.3V      | RESET (Pin 18)| Reset (high)|
-| GND       | VSS (Pin 10) | Ground      |
+| ESP32 Pin | MCP23S17 Pin | Function     |
+| --------- | ------------ | ------------ |
+| GPIO 18   | SCK (12)     | SPI Clock    |
+| GPIO 23   | SI (13)      | SPI MOSI     |
+| GPIO 19   | SO (14)      | SPI MISO     |
+| GPIO 5    | CS (11)      | Chip Select  |
+| 3.3V      | VDD (9)      | Power        |
+| 3.3V      | RESET (18)   | Reset (High) |
+| GND       | VSS (10)     | Ground       |
 
 ### Hardware Addressing (A0, A1, A2)
 
-Pins A0, A1, A2 (Pins 15, 16, 17) determine the chip address:
+Connect pins A0, A1, A2 (pins 15, 16, 17) to set chip address:
 
-| A2 | A1 | A0 | Address |
-|----|----|----|---------|
-| 0  | 0  | 0  | 0       |
-| 0  | 0  | 1  | 1       |
-| 0  | 1  | 0  | 2       |
-| 0  | 1  | 1  | 3       |
-| 1  | 0  | 0  | 4       |
-| 1  | 0  | 1  | 5       |
-| 1  | 1  | 0  | 6       |
-| 1  | 1  | 1  | 7       |
+| A2  | A1  | A0  | Address |
+| --- | --- | --- | ------- |
+| 0   | 0   | 0   | 0       |
+| 0   | 0   | 1   | 1       |
+| 0   | 1   | 0   | 2       |
+| 0   | 1   | 1   | 3       |
+| 1   | 0   | 0   | 4       |
+| 1   | 0   | 1   | 5       |
+| 1   | 1   | 0   | 6       |
+| 1   | 1   | 1   | 7       |
 
-**Note**: For address 0, connect all three pins to GND.
+For address 0: Connect all three to GND.
 
-### Interrupt Pins (Optional)
+### Optional Interrupt Pins
 
 - **INTA** (Pin 20): Interrupt A
 - **INTB** (Pin 19): Interrupt B
 
-These can be connected to an ESP32 GPIO pin.
+Connect to ESP32 GPIO for interrupt handling.
 
-## Quick Start
-
-### Simple Blink Example
+## 🚀 Quick Start
 
 ```cpp
 #include <MCP23S17.h>
@@ -86,7 +117,13 @@ These can be connected to an ESP32 GPIO pin.
 MCP23S17 mcp(CS_PIN, 0);  // CS pin 5, address 0
 
 void setup() {
-  mcp.begin();
+  Serial.begin(115200);
+
+  if (!mcp.begin()) {
+    Serial.println("MCP23S17 not found!");
+    while(1);
+  }
+
   mcp.pinMode(0, MCP23S17_OUTPUT);  // Pin 0 as output
 }
 
@@ -98,7 +135,87 @@ void loop() {
 }
 ```
 
-## API Reference
+## 🎛️ SPI Initialization Methods
+
+The library offers **three flexible ways** to initialize the MCP23S17:
+
+### Method 1: Standard SPI Pins (Simplest)
+
+Uses the board's default SPI pins.
+
+```cpp
+MCP23S17 mcp(CS_PIN, 0);
+
+void setup() {
+  mcp.begin();  // Uses default pins
+}
+```
+
+**ESP32 Default Pins (VSPI):**
+
+- SCK = GPIO 18
+- MISO = GPIO 19
+- MOSI = GPIO 23
+
+---
+
+### Method 2: Custom SPI Pins (Flexible)
+
+Specify your own SPI pins.
+
+```cpp
+MCP23S17 mcp(CS_PIN, 0);
+
+void setup() {
+  mcp.begin(14, 12, 13);  // SCK=14, MISO=12, MOSI=13
+}
+```
+
+**Use when:**
+
+- Default pins are already in use
+- Special PCB routing requirements
+- Different pin layout needed
+
+---
+
+### Method 3: Existing SPI Bus (Most Powerful)
+
+Share an SPI bus with multiple devices.
+
+```cpp
+SPIClass mySPI(HSPI);
+MCP23S17 mcp(CS_PIN, 0);
+
+void setup() {
+  // Initialize bus first
+  mySPI.begin(14, 12, 13, 15);
+
+  // Connect MCP to existing bus
+  mcp.begin(&mySPI);
+}
+```
+
+**Use when:**
+
+- Multiple SPI devices on same bus
+- Need full control over SPI settings
+- Separate buses for different device groups
+- Working with other SPI libraries
+
+---
+
+### Comparison Table
+
+| Feature       | Standard | Custom Pins | Existing Bus |
+| ------------- | -------- | ----------- | ------------ |
+| Simplicity    | ⭐⭐⭐      | ⭐⭐          | ⭐            |
+| Flexibility   | ⭐        | ⭐⭐          | ⭐⭐⭐          |
+| Bus Sharing   | ❌        | ❌           | ✅            |
+| Pin Selection | ❌        | ✅           | ✅            |
+| SPI Control   | ❌        | ❌           | ✅            |
+
+## 📚 API Reference
 
 ### Constructor
 
@@ -112,15 +229,49 @@ MCP23S17(uint8_t csPin, uint8_t address = 0, uint32_t spiFrequency = 10000000)
 
 ### Initialization
 
+#### begin()
+
 ```cpp
 bool begin()
 ```
 
-Initializes the MCP23S17. Must be called in `setup()`.
+Initialize with default SPI pins.
 
-**Returns**: `true` on success, `false` on error
+**Returns:** `true` on success, `false` on failure
 
-### GPIO Basic Functions
+#### begin(sck, miso, mosi)
+
+```cpp
+bool begin(int8_t sck, int8_t miso, int8_t mosi)
+```
+
+Initialize with custom SPI pins.
+
+**Parameters:**
+
+- `sck`: Serial Clock pin
+- `miso`: Master In Slave Out pin
+- `mosi`: Master Out Slave In pin
+
+**Returns:** `true` on success, `false` on failure
+
+#### begin(spi)
+
+```cpp
+bool begin(SPIClass* spi)
+```
+
+Initialize with existing SPI bus.
+
+**Parameters:**
+
+- `spi`: Pointer to initialized SPIClass object
+
+**Returns:** `true` on success, `false` on failure
+
+**Important:** SPI bus must be initialized before calling this!
+
+### Basic GPIO Functions
 
 #### pinMode
 
@@ -128,7 +279,9 @@ Initializes the MCP23S17. Must be called in `setup()`.
 void pinMode(uint8_t pin, uint8_t mode)
 ```
 
-Configures a pin as input or output.
+Configure pin mode.
+
+**Parameters:**
 
 - `pin`: 0-15 (0-7 = Port A, 8-15 = Port B)
 - `mode`: 
@@ -136,11 +289,11 @@ Configures a pin as input or output.
   - `MCP23S17_OUTPUT` - Output
   - `MCP23S17_INPUT_PULLUP` - Input with pull-up
 
-**Example**:
+**Example:**
+
 ```cpp
-mcp.pinMode(0, MCP23S17_OUTPUT);         // Pin 0 as output
-mcp.pinMode(8, MCP23S17_INPUT);          // Pin 8 as input
-mcp.pinMode(9, MCP23S17_INPUT_PULLUP);   // Pin 9 as input with pull-up
+mcp.pinMode(0, MCP23S17_OUTPUT);
+mcp.pinMode(8, MCP23S17_INPUT_PULLUP);
 ```
 
 #### digitalWrite
@@ -149,15 +302,17 @@ mcp.pinMode(9, MCP23S17_INPUT_PULLUP);   // Pin 9 as input with pull-up
 void digitalWrite(uint8_t pin, uint8_t value)
 ```
 
-Writes a digital value to a pin.
+Write digital value to pin.
+
+**Parameters:**
 
 - `pin`: 0-15
 - `value`: `HIGH` or `LOW`
 
-**Example**:
+**Example:**
+
 ```cpp
-mcp.digitalWrite(0, HIGH);  // Pin 0 to HIGH
-mcp.digitalWrite(0, LOW);   // Pin 0 to LOW
+mcp.digitalWrite(0, HIGH);
 ```
 
 #### digitalRead
@@ -166,20 +321,23 @@ mcp.digitalWrite(0, LOW);   // Pin 0 to LOW
 uint8_t digitalRead(uint8_t pin)
 ```
 
-Reads the digital state of a pin.
+Read digital value from pin.
+
+**Parameters:**
 
 - `pin`: 0-15
 
-**Returns**: `HIGH` or `LOW`
+**Returns:** `HIGH` or `LOW`
 
-**Example**:
+**Example:**
+
 ```cpp
 if (mcp.digitalRead(8) == HIGH) {
   // Pin 8 is HIGH
 }
 ```
 
-### Port-wise Operations
+### Port Operations
 
 #### portMode
 
@@ -187,18 +345,17 @@ if (mcp.digitalRead(8) == HIGH) {
 void portMode(uint8_t port, uint8_t modes)
 ```
 
-Configures all 8 pins of a port simultaneously.
+Configure all 8 pins of a port.
+
+**Parameters:**
 
 - `port`: `MCP23S17_PORTA` or `MCP23S17_PORTB`
 - `modes`: 8-bit value (1 = output, 0 = input)
 
-**Example**:
-```cpp
-// Port A: Pins 0-3 as output, 4-7 as input
-mcp.portMode(MCP23S17_PORTA, 0b00001111);
+**Example:**
 
-// Port B: All as output
-mcp.portMode(MCP23S17_PORTB, 0xFF);
+```cpp
+mcp.portMode(MCP23S17_PORTA, 0xFF);  // All outputs
 ```
 
 #### writePort
@@ -207,15 +364,12 @@ mcp.portMode(MCP23S17_PORTB, 0xFF);
 void writePort(uint8_t port, uint8_t value)
 ```
 
-Writes 8-bit value to a port.
+Write 8-bit value to port.
 
-- `port`: `MCP23S17_PORTA` or `MCP23S17_PORTB`
-- `value`: 8-bit value
+**Example:**
 
-**Example**:
 ```cpp
-mcp.writePort(MCP23S17_PORTA, 0b10101010);  // Alternating pattern
-mcp.writePort(MCP23S17_PORTB, 255);         // All HIGH
+mcp.writePort(MCP23S17_PORTA, 0b10101010);
 ```
 
 #### readPort
@@ -224,11 +378,12 @@ mcp.writePort(MCP23S17_PORTB, 255);         // All HIGH
 uint8_t readPort(uint8_t port)
 ```
 
-Reads 8-bit value from a port.
+Read 8-bit value from port.
 
-**Example**:
+**Example:**
+
 ```cpp
-uint8_t portValue = mcp.readPort(MCP23S17_PORTA);
+uint8_t value = mcp.readPort(MCP23S17_PORTA);
 ```
 
 #### writeGPIO
@@ -237,11 +392,14 @@ uint8_t portValue = mcp.readPort(MCP23S17_PORTA);
 void writeGPIO(uint16_t value)
 ```
 
-Writes all 16 pins simultaneously.
+Write all 16 pins simultaneously.
+
+**Parameters:**
 
 - `value`: 16-bit value (low byte = Port A, high byte = Port B)
 
-**Example**:
+**Example:**
+
 ```cpp
 mcp.writeGPIO(0x00FF);  // Port A = 0xFF, Port B = 0x00
 ```
@@ -252,14 +410,15 @@ mcp.writeGPIO(0x00FF);  // Port A = 0xFF, Port B = 0x00
 uint16_t readGPIO()
 ```
 
-Reads all 16 pins simultaneously.
+Read all 16 pins simultaneously.
 
-**Example**:
+**Example:**
+
 ```cpp
 uint16_t allPins = mcp.readGPIO();
 ```
 
-### Pull-up Resistors
+### Pull-up Configuration
 
 #### setPullup
 
@@ -267,12 +426,12 @@ uint16_t allPins = mcp.readGPIO();
 void setPullup(uint8_t pin, bool enable)
 ```
 
-Enables/disables pull-up for a pin.
+Enable/disable pull-up for single pin.
 
-**Example**:
+**Example:**
+
 ```cpp
 mcp.setPullup(8, true);   // Enable pull-up
-mcp.setPullup(9, false);  // Disable pull-up
 ```
 
 #### setPortPullups
@@ -281,9 +440,10 @@ mcp.setPullup(9, false);  // Disable pull-up
 void setPortPullups(uint8_t port, uint8_t value)
 ```
 
-Configures pull-ups for entire port.
+Configure pull-ups for entire port.
 
-**Example**:
+**Example:**
+
 ```cpp
 mcp.setPortPullups(MCP23S17_PORTB, 0xFF);  // All pull-ups on
 ```
@@ -296,21 +456,20 @@ mcp.setPortPullups(MCP23S17_PORTB, 0xFF);  // All pull-ups on
 void enableInterrupt(uint8_t pin, uint8_t mode = MCP23S17_INT_CHANGE, uint8_t defaultValue = 0)
 ```
 
-Enables interrupt for a pin.
+Enable interrupt for pin.
+
+**Parameters:**
 
 - `pin`: 0-15
 - `mode`:
   - `MCP23S17_INT_CHANGE` - Interrupt on change
   - `MCP23S17_INT_COMPARE` - Interrupt on difference from defaultValue
-- `defaultValue`: Compare value (only for COMPARE mode)
+- `defaultValue`: Comparison value (only for COMPARE mode)
 
-**Example**:
+**Example:**
+
 ```cpp
-// Interrupt on any change
 mcp.enableInterrupt(0, MCP23S17_INT_CHANGE);
-
-// Interrupt only when pin goes HIGH
-mcp.enableInterrupt(1, MCP23S17_INT_COMPARE, LOW);
 ```
 
 #### disableInterrupt
@@ -319,7 +478,7 @@ mcp.enableInterrupt(1, MCP23S17_INT_COMPARE, LOW);
 void disableInterrupt(uint8_t pin)
 ```
 
-Disables interrupt for a pin.
+Disable interrupt for pin.
 
 #### setPortInterrupts
 
@@ -327,13 +486,7 @@ Disables interrupt for a pin.
 void setPortInterrupts(uint8_t port, uint8_t mask, uint8_t mode = MCP23S17_INT_CHANGE)
 ```
 
-Configures interrupts for entire port.
-
-**Example**:
-```cpp
-// Enable interrupts for pins 0, 2, 4
-mcp.setPortInterrupts(MCP23S17_PORTA, 0b00010101);
-```
+Configure interrupts for entire port.
 
 #### setInterruptPolarity
 
@@ -341,10 +494,12 @@ mcp.setPortInterrupts(MCP23S17_PORTA, 0b00010101);
 void setInterruptPolarity(bool activeHigh)
 ```
 
-Sets interrupt polarity.
+Set interrupt polarity.
 
-- `true`: Active-high
-- `false`: Active-low (default)
+**Parameters:**
+
+- `true`: Active-High
+- `false`: Active-Low (default)
 
 #### setInterruptMirror
 
@@ -352,7 +507,7 @@ Sets interrupt polarity.
 void setInterruptMirror(bool enable)
 ```
 
-Connects INTA and INTB pins.
+Connect INTA and INTB pins.
 
 #### getInterruptFlags
 
@@ -360,9 +515,10 @@ Connects INTA and INTB pins.
 uint8_t getInterruptFlags(uint8_t port)
 ```
 
-Reads which pins triggered an interrupt.
+Read which pins triggered interrupt.
 
-**Example**:
+**Example:**
+
 ```cpp
 uint8_t flags = mcp.getInterruptFlags(MCP23S17_PORTA);
 if (flags & 0x01) {
@@ -376,7 +532,7 @@ if (flags & 0x01) {
 uint8_t getInterruptCapture(uint8_t port)
 ```
 
-Reads GPIO state at time of interrupt.
+Read GPIO state at time of interrupt.
 
 #### clearInterrupts
 
@@ -384,7 +540,7 @@ Reads GPIO state at time of interrupt.
 void clearInterrupts()
 ```
 
-Clears all interrupts.
+Clear all interrupts.
 
 ### Advanced Functions
 
@@ -394,7 +550,7 @@ Clears all interrupts.
 void reset()
 ```
 
-Resets all registers to default values.
+Reset all registers to default values.
 
 #### readRegister / writeRegister
 
@@ -405,19 +561,41 @@ void writeRegister(uint8_t reg, uint8_t value)
 
 Direct register access for advanced applications.
 
-## Examples
+## 📖 Examples
 
-The library includes the following examples:
+The library includes 7 comprehensive examples:
 
-1. **MCP23S17_Blink** - Simple LED blinking
-2. **MCP23S17_Interrupt** - Button with interrupt handling
-3. **MCP23S17_PortOperations** - Port-wise operations
-4. **MCP23S17_MultipleChips** - Multiple chips simultaneously
-5. **MCP23S17_FullTest** - Complete function test
+### 1. MCP23S17_Blink
 
-## Using Multiple Chips
+Simple LED blink example - perfect for getting started.
 
-Up to 8 MCP23S17 can operate on the same CS pin:
+### 2. MCP23S17_CustomSPI
+
+Using custom SPI pins instead of defaults.
+
+### 3. MCP23S17_ExistingSPI
+
+Connecting to an existing SPI bus - ideal for multiple SPI devices.
+
+### 4. MCP23S17_Interrupt
+
+Button with interrupt handling and ISR processing.
+
+### 5. MCP23S17_PortOperations
+
+Control 8 pins simultaneously using port operations.
+
+### 6. MCP23S17_MultipleChips
+
+Using multiple MCP23S17 chips (up to 8 per CS pin).
+
+### 7. MCP23S17_FullTest
+
+Complete functionality test with diagnostics.
+
+## 🔥 Advanced Usage
+
+### Multiple Chips on Same Bus
 
 ```cpp
 MCP23S17 mcp1(CS_PIN, 0);  // Address 0
@@ -428,20 +606,51 @@ void setup() {
   mcp1.begin();
   mcp2.begin();
   mcp3.begin();
-  
-  // Now all 3 chips can be controlled independently
+
+  // Control independently
   mcp1.digitalWrite(0, HIGH);
   mcp2.digitalWrite(0, HIGH);
   mcp3.digitalWrite(0, HIGH);
 }
 ```
 
-## Tips & Tricks
+### Sharing SPI Bus with Other Devices
 
-### Performance
+```cpp
+SPIClass sharedBus(HSPI);
 
-- For best performance, use port-wise operations instead of individual pins
-- Register cache reduces unnecessary SPI transfers
+MCP23S17 mcp(15, 0);
+// + SD card, display, etc.
+
+void setup() {
+  sharedBus.begin(14, 12, 13, 15);
+
+  mcp.begin(&sharedBus);
+  SD.begin(4, sharedBus);
+  display.begin(&sharedBus);
+}
+```
+
+### Separate Buses for Different Speeds
+
+```cpp
+SPIClass fastBus(VSPI);
+SPIClass slowBus(HSPI);
+
+MCP23S17 mcpFast(5, 0);
+MCP23S17 mcpSlow(15, 0);
+
+void setup() {
+  fastBus.begin();
+  fastBus.setFrequency(40000000);  // 40 MHz
+
+  slowBus.begin(14, 12, 13, 15);
+  slowBus.setFrequency(1000000);   // 1 MHz
+
+  mcpFast.begin(&fastBus);
+  mcpSlow.begin(&slowBus);
+}
+```
 
 ### Interrupt Handling
 
@@ -454,77 +663,156 @@ void IRAM_ATTR handleInterrupt() {
 }
 
 void setup() {
-  // ... Initialize MCP ...
-  
+  mcp.begin();
+
   pinMode(INT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(INT_PIN), handleInterrupt, FALLING);
-  
+
+  mcp.pinMode(0, MCP23S17_INPUT_PULLUP);
   mcp.enableInterrupt(0);
+  mcp.clearInterrupts();
 }
 
 void loop() {
   if (interruptFlag) {
     interruptFlag = false;
-    
+
     uint8_t flags = mcp.getInterruptFlags(MCP23S17_PORTA);
     uint8_t capture = mcp.getInterruptCapture(MCP23S17_PORTA);
-    
-    // Process interrupt ...
-    
+
+    // Process interrupt
+
     mcp.clearInterrupts();  // Important!
   }
 }
 ```
 
-### Debugging
+## 🐛 Troubleshooting
 
-```cpp
-// Output register values
-uint8_t iocon = mcp.readRegister(MCP23S17_IOCON);
-Serial.print("IOCON: 0x");
-Serial.println(iocon, HEX);
-```
+### Chip Not Found
 
-## Troubleshooting
+**Problem:** `begin()` returns false
 
-### Chip Not Detected
+**Solutions:**
 
 - Check wiring (especially VDD and GND)
-- Verify SPI connection
-- Ensure RESET pin is HIGH
-- Check addressing (A0, A1, A2)
+- Verify SPI connections
+- Ensure RESET pin is HIGH (3.3V)
+- Check address pins (A0, A1, A2)
+- Try slower SPI frequency: `MCP23S17 mcp(5, 0, 1000000);`
 
 ### Pins Not Responding
 
-- Check if `pinMode()` was called
-- For inputs: Pull-up enabled?
-- For outputs: Correct port configuration?
+**Problem:** digitalWrite/digitalRead not working
+
+**Solutions:**
+
+- Verify `pinMode()` was called
+- For inputs: check if pull-up is needed
+- For outputs: verify port configuration
+- Test with register dump: `Serial.println(mcp.readRegister(MCP23S17_IOCON), HEX);`
 
 ### Interrupts Not Working
 
+**Problem:** No interrupt triggered
+
+**Solutions:**
+
 - Call `clearInterrupts()` after processing
-- Check interrupt polarity
-- ESP32 interrupt pin configured correctly?
+- Check interrupt polarity setting
+- Verify ESP32 interrupt pin configuration
+- Ensure interrupt is enabled: `mcp.enableInterrupt(pin)`
+- Check INTA/INTB connection
 
-## Technical Details
+### Multiple Chips Conflict
 
-- **Communication**: SPI Mode 0 (CPOL=0, CPHA=0)
-- **Max. SPI Frequency**: 10 MHz (default)
-- **Supply Voltage**: 1.8V - 5.5V (ESP32: 3.3V)
-- **Max. Output Current**: 25 mA per pin
+**Problem:** Chips interfere with each other
 
-## License
+**Solutions:**
 
-This library is freely available for private and commercial use.
+- Ensure different addresses (A0, A1, A2)
+- If same address: use different CS pins
+- Check HAEN bit is enabled (done automatically)
+- Verify each chip initializes: check `begin()` return value
 
-## Support
+## 💡 Tips & Best Practices
 
-For questions or issues, please create an issue on GitHub.
+### Performance
 
-## Changelog
+- Use port operations instead of individual pins for better speed
+- Register cache reduces unnecessary SPI transfers
+- For maximum speed: use `writeGPIO()` for all 16 pins at once
 
-### Version 1.0.0
-- Initial release
-- All basic functions implemented
-- 5 examples included
-- Complete documentation
+### Power Management
+
+- MCP23S17 supports 1.8V - 5.5V operation
+- ESP32: use 3.3V
+- Max current per pin: 25 mA
+- Use external drivers for high-current loads
+
+### Debugging
+
+```cpp
+// Print configuration
+Serial.print("IOCON: 0x");
+Serial.println(mcp.readRegister(MCP23S17_IOCON), HEX);
+
+// Dump all GPIO states
+uint16_t state = mcp.readGPIO();
+Serial.print("GPIO: 0b");
+Serial.println(state, BIN);
+```
+
+### SPI Bus Sharing
+
+When sharing SPI bus with other devices:
+
+- MCP handles transactions automatically
+- No manual transaction management needed
+- Different devices can use different CS pins
+- Or use hardware addressing for multiple MCPs
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development Setup
+
+```bash
+git clone https://github.com/yourusername/MCP23S17.git
+cd MCP23S17
+```
+
+### Coding Standards
+
+- Follow existing code style
+- Add comments for complex logic
+- Include examples for new features
+- Update documentation
+
+## 📄 License
+
+This library is released under the MIT License. See LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Microchip for the MCP23S17 datasheet
+- Arduino community for inspiration
+- All contributors and testers
+
+## 📞 Support
+
+- **Issues:** [GitHub Issues](https://github.com/yourusername/MCP23S17/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/yourusername/MCP23S17/discussions)
+  
+  
+
+## 🔗 Links
+
+- [MCP23S17 Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/20001952C.pdf)
+- [Arduino Reference](https://www.arduino.cc/reference/en/)
+- [ESP32 Documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/)
+
+## ⭐ Star History
+
+If you find this library useful, please consider giving it a star! ⭐

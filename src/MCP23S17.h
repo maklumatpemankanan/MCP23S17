@@ -82,11 +82,35 @@ public:
     MCP23S17(uint8_t csPin, uint8_t address = 0, uint32_t spiFrequency = 10000000);
     
     /*
-     * Initialisierung
+     * Initialisierung mit Standard-SPI-Pins
      * Muss in setup() aufgerufen werden
+     * Verwendet die Standard-SPI-Pins des Boards
      * Gibt true zurück bei Erfolg
      */
     bool begin();
+    
+    /*
+     * Initialisierung mit benutzerdefinierten SPI-Pins
+     * sck: SCK Pin (Serial Clock)
+     * miso: MISO Pin (Master In Slave Out)
+     * mosi: MOSI Pin (Master Out Slave In)
+     * Gibt true zurück bei Erfolg
+     * 
+     * Beispiel: mcp.begin(18, 19, 23); // SCK=18, MISO=19, MOSI=23
+     */
+    bool begin(int8_t sck, int8_t miso, int8_t mosi);
+    
+    /*
+     * Initialisierung mit bestehendem SPI-Bus
+     * spi: Zeiger auf bereits initialisierten SPIClass-Bus
+     * Gibt true zurück bei Erfolg
+     * 
+     * Beispiel: 
+     * SPIClass customSPI(HSPI);
+     * customSPI.begin(14, 12, 13, 15);
+     * mcp.begin(&customSPI);
+     */
+    bool begin(SPIClass* spi);
     
     // ========== GPIO Grundfunktionen ==========
     
@@ -267,6 +291,11 @@ private:
      * SPI-Transaktion beenden
      */
     void endTransaction();
+    
+    /*
+     * Chip initialisieren (gemeinsame Funktion für beide begin()-Varianten)
+     */
+    bool initializeChip();
     
     /*
      * Einzelnes Bit in Register setzen oder löschen
